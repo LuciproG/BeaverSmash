@@ -15,6 +15,11 @@ const SPACING = 120   # distancia entre celdas
 var grid_positions: Array[Vector2] = []   # posiciones absolutas de cada celda
 var occupied_cells: Array[bool] = []      # si una celda está ocupada o no
 
+# Sistema de puntos
+var points: int = 0           # Puntos actuales
+var hit_value: int = 1        # Valor al golpear mole (más adelante lo ajustamos con A/D)
+var miss_value: int = -1      # Valor al perder mole
+
 
 # ==========================
 # Ready
@@ -34,7 +39,8 @@ func _ready():
 	occupied_cells.fill(false)
 
 	# Configurar el Timer con el BPM de Toby Fox - "It's TV Time!"
-	# BPM = 148 → cada beat ≈ 0.405 segundos
+	# BPM original: 148 → cada beat ≈ 0.405 segundos
+	# Lo bajamos a la mitad → 74 BPM → cada beat ≈ 0.81 segundos
 	var bpm = 74.0
 	beat_timer.wait_time = 60.0 / bpm
 	beat_timer.autostart = false
@@ -89,17 +95,29 @@ func _spawn_mole():
 	mole.position = grid_positions[cell_index]
 	mole.cell_index = cell_index   # cada mole sabe en qué celda está
 	mole.mole_whacked.connect(_on_mole_whacked)
+	mole.mole_expired.connect(_on_mole_expired)
 
 	occupied_cells[cell_index] = true
 	game_layer.add_child(mole)   # ahora las moles se agregan dentro del GameLayer
+	
+
+# ==========================
+# Callback cuando mole expira sola
+# ==========================
+func _on_mole_expired(mole):
+	occupied_cells[mole.cell_index] = false
+	points += miss_value   # 🔥 Restamos puntos por dejarla ir
+	print("Mole perdida! Puntos: %d" % points)
+	mole.queue_free()
 
 
 # ==========================
 # Callback cuando mole es whacked
 # ==========================
 func _on_mole_whacked(mole):
-	# Liberamos la celda y borramos la mole
 	occupied_cells[mole.cell_index] = false
+	points += hit_value   # 🔥 Sumamos puntos al golpear
+	print("Mole golpeada! Puntos: %d" % points)
 	mole.queue_free()
 
 
