@@ -44,7 +44,7 @@ var hit_value: int = 1
 var miss_value: int = -1
 
 # Umbral para ganar
-const WIN_THRESHOLD = 300
+const WIN_THRESHOLD = 30
 
 # ==========================
 # Ready
