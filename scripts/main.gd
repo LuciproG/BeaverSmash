@@ -9,6 +9,7 @@ extends Node2D
 @onready var beat_timer = $BeatTimer
 @onready var mole_scene = preload("res://scenes/mole.tscn")
 @onready var ticket_label = $CanvasLayer/ticketLabel
+@onready var cts_text = $CanvasLayer/CTStext  # Label de texto inicial
 
 # Pantallas de fin de juego
 @onready var win_screen_scene = preload("res://scenes/WinScreen.tscn")
@@ -53,7 +54,9 @@ func _ready():
 	beat_timer.autostart = false
 	beat_timer.one_shot = false
 
-	_update_ticket_label()
+	# Mostrar solo el CTStext al inicio y ocultar tickets
+	cts_text.visible = true
+	ticket_label.visible = false
 
 # ==========================
 # Generar grilla centrada
@@ -230,6 +233,9 @@ func _on_retry_pressed():
 		end_screen = null
 
 	play_button.visible = false
+	cts_text.visible = false
+	ticket_label.visible = true
+
 	tickets = 10
 	mode = "fast"
 	hit_value = 1
@@ -255,11 +261,15 @@ func _on_main_menu_pressed():
 		end_screen = null
 
 	play_button.visible = true
+	cts_text.visible = true   # Mostrar texto inicial
+	ticket_label.visible = false  # Ocultar tickets
 
 # ==========================
 # Botón Play
 # ==========================
 func _on_play_button_pressed():
 	play_button.visible = false
+	cts_text.visible = false   # Ocultar texto inicial
+	ticket_label.visible = true # Mostrar tickets
 	music.play()
 	beat_timer.start()
