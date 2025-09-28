@@ -28,7 +28,7 @@ var mode: String = "fast"
 
 # Valores de BPM
 const FAST_BPM = 148.0
-const SLOW_BPM = 74.0
+const SLOW_BPM = 88.0  # Ajustado al 60% del fast
 
 # Sistema de puntos
 var hit_value: int = 1
@@ -77,9 +77,9 @@ func _process(_delta):
 	if Input.is_action_just_pressed("mode_slow"):
 		mode = "slow"
 		hit_value = 2
-		miss_value = -2
+		miss_value = -3
 		beat_timer.wait_time = 60.0 / SLOW_BPM
-		print("Modo cambiado a LENTO (74 BPM)")
+		print("Modo cambiado a LENTO (88 BPM)")
 		_update_ticket_label()
 	elif Input.is_action_just_pressed("mode_fast"):
 		mode = "fast"
@@ -111,6 +111,12 @@ func _spawn_mole():
 	var mole = mole_scene.instantiate()
 	mole.position = grid_positions[cell_index]
 	mole.cell_index = cell_index
+
+	# Ajustar lifetime según modo
+	if mode == "slow":
+		mole.lifetime = 1.5
+	else:
+		mole.lifetime = 1.0
 
 	# Godot 4: usar Callable para is_connected
 	var whack_callable = Callable(self, "_on_mole_whacked")
@@ -151,11 +157,11 @@ func _update_ticket_label(event: String = ""):
 	ticket_label.text = "🎟️ Tickets: " + str(tickets) + " (" + mode + ")"
 
 	if event == "hit":
-		ticket_label.modulate = Color(0, 1, 0)   # Verde
+		ticket_label.modulate = Color(0, 1, 0)
 	elif event == "miss":
-		ticket_label.modulate = Color(1, 0, 0)   # Rojo
+		ticket_label.modulate = Color(1, 0, 0)
 	else:
-		ticket_label.modulate = Color(1, 1, 1)   # Blanco
+		ticket_label.modulate = Color(1, 1, 1)
 
 	await get_tree().create_timer(0.3).timeout
 	ticket_label.modulate = Color(1, 1, 1)
