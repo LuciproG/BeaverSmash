@@ -10,6 +10,12 @@ extends Node2D
 @onready var mole_scene = preload("res://scenes/mole.tscn")
 @onready var ticket_label = $CanvasLayer/ticketLabel
 
+# Pantallas de fin de juego
+@onready var win_screen_scene = preload("res://scenes/WinScreen.tscn")
+@onready var game_over_scene = preload("res://scenes/GameOverScreen.tscn")
+
+var end_screen: Node = null   # Referencia a pantalla activa
+
 # Configuración de la grilla
 const GRID_SIZE = 3
 const SPACING = 120
@@ -28,10 +34,8 @@ const SLOW_BPM = 74.0
 var hit_value: int = 1
 var miss_value: int = -1
 
-# ==========================
-# Condición de victoria
-# ==========================
-const WIN_THRESHOLD: int = 300   # 🔥 Ajusta este valor para balancear
+# Umbral para ganar
+const WIN_THRESHOLD = 300
 
 # ==========================
 # Ready
@@ -39,7 +43,7 @@ const WIN_THRESHOLD: int = 300   # 🔥 Ajusta este valor para balancear
 func _ready():
 	play_button.pressed.connect(_on_play_button_pressed)
 	beat_timer.timeout.connect(_on_beat)
-	music.finished.connect(_on_music_finished)   # ✅ Detectar cuando termina la canción
+	music.finished.connect(_on_song_finished)
 
 	_generate_grid()
 	occupied_cells.resize(grid_positions.size())
@@ -56,23 +60,20 @@ func _ready():
 # ==========================
 func _generate_grid():
 	grid_positions.clear()
-
 	var screen_size = get_viewport_rect().size
 	var grid_width = (GRID_SIZE - 1) * SPACING
 	var grid_height = (GRID_SIZE - 1) * SPACING
-
 	var start_x = screen_size.x / 2.0 - grid_width / 2.0
 	var start_y = screen_size.y / 2.0 - grid_height / 2.0 + 120.0
 
 	for row in range(GRID_SIZE):
 		for col in range(GRID_SIZE):
-			var pos = Vector2(start_x + col * SPACING, start_y + row * SPACING)
-			grid_positions.append(pos)
+			grid_positions.append(Vector2(start_x + col * SPACING, start_y + row * SPACING))
 
 # ==========================
 # Procesar input (A/D)
 # ==========================
-func _process(delta):
+func _process(_delta):
 	if Input.is_action_just_pressed("mode_slow"):
 		mode = "slow"
 		hit_value = 2
@@ -108,11 +109,17 @@ func _spawn_mole():
 
 	var cell_index = free_cells[randi() % free_cells.size()]
 	var mole = mole_scene.instantiate()
-
 	mole.position = grid_positions[cell_index]
 	mole.cell_index = cell_index
-	mole.mole_whacked.connect(_on_mole_whacked)
-	mole.mole_expired.connect(_on_mole_expired)
+
+	# Godot 4: usar Callable para is_connected
+	var whack_callable = Callable(self, "_on_mole_whacked")
+	var expire_callable = Callable(self, "_on_mole_expired")
+
+	if not mole.mole_whacked.is_connected(whack_callable):
+		mole.mole_whacked.connect(whack_callable)
+	if not mole.mole_expired.is_connected(expire_callable):
+		mole.mole_expired.connect(expire_callable)
 
 	occupied_cells[cell_index] = true
 	game_layer.add_child(mole)
@@ -123,7 +130,6 @@ func _spawn_mole():
 func _on_mole_expired(mole):
 	occupied_cells[mole.cell_index] = false
 	tickets += miss_value
-	print("Mole perdida! Tickets: %d" % tickets)
 	_update_ticket_label("miss")
 	_check_game_over()
 	mole.queue_free()
@@ -134,7 +140,6 @@ func _on_mole_expired(mole):
 func _on_mole_whacked(mole):
 	occupied_cells[mole.cell_index] = false
 	tickets += hit_value
-	print("Mole golpeada! Tickets: %d" % tickets)
 	_update_ticket_label("hit")
 	_check_game_over()
 	mole.queue_free()
@@ -143,9 +148,9 @@ func _on_mole_whacked(mole):
 # Actualizar el label
 # ==========================
 func _update_ticket_label(event: String = ""):
-	ticket_label.text = "🎟️ Tickets: %d (%s)" % [tickets, mode]
+	# Convertir tickets a String para evitar errores
+	ticket_label.text = "🎟️ Tickets: " + str(tickets) + " (" + mode + ")"
 
-	# Efecto de color según evento
 	if event == "hit":
 		ticket_label.modulate = Color(0, 1, 0)   # Verde
 	elif event == "miss":
@@ -153,7 +158,6 @@ func _update_ticket_label(event: String = ""):
 	else:
 		ticket_label.modulate = Color(1, 1, 1)   # Blanco
 
-	# Hacemos que vuelva al blanco luego de 0.3s
 	await get_tree().create_timer(0.3).timeout
 	ticket_label.modulate = Color(1, 1, 1)
 
@@ -162,38 +166,82 @@ func _update_ticket_label(event: String = ""):
 # ==========================
 func _check_game_over():
 	if tickets <= 0:
-		print("Game Over! (sin tickets)")
 		_end_game(false)
 
 # ==========================
-# Callback cuando la música termina
+# Canción terminada
 # ==========================
-func _on_music_finished():
-	print("La canción terminó!")
+func _on_song_finished():
 	if tickets >= WIN_THRESHOLD:
 		_end_game(true)
 	else:
 		_end_game(false)
 
 # ==========================
-# Terminar juego
+# Pantallas de fin de juego
 # ==========================
 func _end_game(won: bool):
-	beat_timer.stop()
-	music.stop()
+	if not beat_timer.is_stopped():
+		beat_timer.stop()
+	if music.playing:
+		music.stop()
+
 	play_button.visible = true
 
-	if won:
-		print("🎉 Has ganado con %d tickets!" % tickets)
-	else:
-		print("❌ Game Over. Tickets finales: %d" % tickets)
+	# Limpiar pantalla anterior
+	if end_screen and is_instance_valid(end_screen):
+		end_screen.queue_free()
+		end_screen = null
+
+	# Limpiar moles restantes
+	for child in game_layer.get_children():
+		if is_instance_valid(child):
+			child.queue_free()
+
+	# Instanciar pantalla correcta
+	end_screen = (win_screen_scene if won else game_over_scene).instantiate()
+	add_child(end_screen)
+
+	# Fade-in correcto Godot 4
+	end_screen.modulate.a = 0.0
+	var t = end_screen.create_tween()
+	t.tween_property(end_screen, "modulate:a", 1.0, 0.5)  # valor final y duración
+
+	# Conectar botón Retry solo si no estaba conectado
+	var retry_button = end_screen.get_node("Button")  # ruta corregida
+	var retry_callable = Callable(self, "_on_retry_pressed")
+	if not retry_button.pressed.is_connected(retry_callable):
+		retry_button.pressed.connect(retry_callable)
+
+# ==========================
+# Retry
+# ==========================
+func _on_retry_pressed():
+	if end_screen and is_instance_valid(end_screen):
+		end_screen.queue_free()
+		end_screen = null
+
+	play_button.visible = false
+	tickets = 10
+	mode = "fast"
+	hit_value = 1
+	miss_value = -1
+	beat_timer.wait_time = 60.0 / FAST_BPM
+
+	# Limpiar grid y moles
+	occupied_cells.fill(false)
+	for child in game_layer.get_children():
+		if is_instance_valid(child):
+			child.queue_free()
+
+	_update_ticket_label()
+	music.play()
+	beat_timer.start()
 
 # ==========================
 # Botón Play
 # ==========================
 func _on_play_button_pressed():
 	play_button.visible = false
-	tickets = 10   # 🔥 Reiniciar tickets al empezar
-	_update_ticket_label()
 	music.play()
 	beat_timer.start()

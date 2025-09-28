@@ -1,8 +1,6 @@
 [gd_scene format=3 uid="uid://dr20rtawdpsp3"]
 
-[node name="CanvasLayer" type="CanvasLayer"]
-
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -10,19 +8,33 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TextureRect" type="TextureRect" parent="Control"]
+[node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Label" type="Label" parent="Control"]
+[node name="Label" type="Label" parent="."]
 layout_mode = 0
-offset_right = 40.0
+offset_left = 128.0
+offset_right = 246.0
 offset_bottom = 23.0
-text = "YOU WIN 🎉"
+theme_override_font_sizes/font_size = 125
+text = "GAME OVER ❌"
 
-[node name="Button" type="Button" parent="Control"]
+[node name="retryButton" type="Button" parent="."]
 layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
+offset_left = 307.0
+offset_top = 167.0
+offset_right = 800.0
+offset_bottom = 346.0
+theme_override_font_sizes/font_size = 125
 text = "Retry"
+
+[node name="mainMenuButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 307.0
+offset_top = 373.0
+offset_right = 800.0
+offset_bottom = 552.0
+theme_override_font_sizes/font_size = 125
+text = "Menu"

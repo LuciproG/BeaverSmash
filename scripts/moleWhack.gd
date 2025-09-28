@@ -3,17 +3,16 @@ extends Area2D
 # ==========================
 # Señales
 # ==========================
-signal mole_whacked(mole)   # Emitida cuando el jugador golpea la mole
-signal mole_expired(mole)   # Emitida cuando la mole desaparece sola
+signal mole_whacked(mole)
+signal mole_expired(mole)
 
 # ==========================
 # Variables
 # ==========================
-var cell_index: int = -1    # La celda en la que aparece la mole
-@export var lifetime: float = 2.0   # Tiempo de vida en segundos
+var cell_index: int = -1
+@export var lifetime: float = 2.0
 
-@onready var lifetime_timer: Timer = $LifetimeTimer   # Timer que controla cuánto vive la mole
-
+@onready var lifetime_timer: Timer = $LifetimeTimer
 
 # ==========================
 # Ready
@@ -25,29 +24,28 @@ func _ready():
 	lifetime_timer.timeout.connect(_on_lifetime_timeout)
 	lifetime_timer.start()
 	
-	# Escuchar clics en la mole
-	input_event.connect(_on_input_event)
-
+	# Conectar input_event solo si no estaba conectado
+	var input_callable = Callable(self, "_on_input_event")
+	if not input_event.is_connected(input_callable):
+		input_event.connect(input_callable)
 
 # ==========================
 # Cuando la mole es golpeada
 # ==========================
 func whack():
-	mole_whacked.emit(self)   # Avisamos al Main que fue golpeada
-	queue_free()              # Desaparece inmediatamente
-
+	mole_whacked.emit(self)
+	queue_free()
 
 # ==========================
 # Cuando expira el tiempo de vida
 # ==========================
 func _on_lifetime_timeout():
-	mole_expired.emit(self)   # Avisamos al Main que desapareció
-	queue_free()              # Desaparece sola
-
+	mole_expired.emit(self)
+	queue_free()
 
 # ==========================
 # Detectar clic del jugador
 # ==========================
-func _on_input_event(viewport, event, shape_idx):
+func _on_input_event(_viewport, event, _shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		whack()
