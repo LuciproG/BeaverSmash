@@ -54,9 +54,19 @@ func _ready():
 	beat_timer.autostart = false
 	beat_timer.one_shot = false
 
-	# Mostrar solo el CTStext al inicio y ocultar tickets
+	# Mostrar solo el CTStext y play_button al inicio, ocultar tickets
 	cts_text.visible = true
+	play_button.visible = true
 	ticket_label.visible = false
+
+	# Fade-in inicial del menú
+	cts_text.modulate.a = 0.0
+	var tween_text = cts_text.create_tween()
+	tween_text.tween_property(cts_text, "modulate:a", 1.0, 0.5)
+
+	play_button.modulate.a = 0.0
+	var tween_button = play_button.create_tween()
+	tween_button.tween_property(play_button, "modulate:a", 1.0, 0.5)
 
 # ==========================
 # Generar grilla centrada
@@ -232,6 +242,15 @@ func _on_retry_pressed():
 		end_screen.queue_free()
 		end_screen = null
 
+	# Fade-out menú (play_button + CTStext)
+	var tween_button = play_button.create_tween()
+	tween_button.tween_property(play_button, "modulate:a", 0.0, 0.5)
+	tween_button.tween_callback(Callable(play_button, "hide"))
+
+	var tween_text = cts_text.create_tween()
+	tween_text.tween_property(cts_text, "modulate:a", 0.0, 0.5)
+	tween_text.tween_callback(Callable(cts_text, "hide"))
+
 	play_button.visible = false
 	cts_text.visible = false
 	ticket_label.visible = true
@@ -242,13 +261,14 @@ func _on_retry_pressed():
 	miss_value = -1
 	beat_timer.wait_time = 60.0 / FAST_BPM
 
+	_update_ticket_label()  # actualizar el label inmediatamente
+
 	# Limpiar grid y moles
 	occupied_cells.fill(false)
 	for child in game_layer.get_children():
 		if is_instance_valid(child):
 			child.queue_free()
 
-	_update_ticket_label()
 	music.play()
 	beat_timer.start()
 
@@ -260,16 +280,54 @@ func _on_main_menu_pressed():
 		end_screen.queue_free()
 		end_screen = null
 
+	# Fade-in del play_button
 	play_button.visible = true
-	cts_text.visible = true   # Mostrar texto inicial
-	ticket_label.visible = false  # Ocultar tickets
+	play_button.modulate.a = 0.0
+	var tween_button = play_button.create_tween()
+	tween_button.tween_property(play_button, "modulate:a", 1.0, 0.5)
+
+	# Fade-in del CTStext
+	cts_text.visible = true
+	cts_text.modulate.a = 0.0
+	var tween_text = cts_text.create_tween()
+	tween_text.tween_property(cts_text, "modulate:a", 1.0, 0.5)
+
+	ticket_label.visible = false
+
+	# Resetear valores del juego
+	tickets = 10
+	mode = "fast"
+	hit_value = 1
+	miss_value = -1
+	beat_timer.wait_time = 60.0 / FAST_BPM
+
+	_update_ticket_label()  # actualizar label para mostrar puntaje correcto al volver
 
 # ==========================
 # Botón Play
 # ==========================
 func _on_play_button_pressed():
+	# Fade-out menú (play_button + CTStext)
+	var tween_button = play_button.create_tween()
+	tween_button.tween_property(play_button, "modulate:a", 0.0, 0.5)
+	tween_button.tween_callback(Callable(play_button, "hide"))
+
+	var tween_text = cts_text.create_tween()
+	tween_text.tween_property(cts_text, "modulate:a", 0.0, 0.5)
+	tween_text.tween_callback(Callable(cts_text, "hide"))
+
 	play_button.visible = false
-	cts_text.visible = false   # Ocultar texto inicial
-	ticket_label.visible = true # Mostrar tickets
+	cts_text.visible = false
+	ticket_label.visible = true
+
+	# Reiniciar valores del juego
+	tickets = 10
+	mode = "fast"
+	hit_value = 1
+	miss_value = -1
+	beat_timer.wait_time = 60.0 / FAST_BPM
+
+	_update_ticket_label()  # actualizar label inmediatamente
+
 	music.play()
 	beat_timer.start()

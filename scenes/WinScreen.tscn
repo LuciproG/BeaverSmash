@@ -1,4 +1,6 @@
-[gd_scene format=3 uid="uid://dmes26btgjmig"]
+[gd_scene load_steps=2 format=3 uid="uid://dmes26btgjmig"]
+
+[ext_resource type="Texture2D" uid="uid://ps5nk35twwts" path="res://assets/sprites/TitleScreen.png" id="1_ulig0"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -7,6 +9,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 1366.0
+offset_bottom = 768.0
+texture = ExtResource("1_ulig0")
+expand_mode = 1
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 0
@@ -34,8 +43,3 @@ offset_right = 800.0
 offset_bottom = 565.0
 theme_override_font_sizes/font_size = 125
 text = "Menu"
-
-[node name="TextureRect" type="TextureRect" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
