@@ -3,57 +3,48 @@ extends Node2D
 # ==========================
 # Variables y escenas
 # ==========================
-@onready var music = $Music   # Nodo AudioStreamPlayer que reproduce la canción
-@onready var play_button = $CanvasLayer/playButton   # Botón del menú
-@onready var game_layer = $GameLayer   # Capa donde se instancian las moles
-@onready var beat_timer = $BeatTimer   # Timer sincronizado con el BPM de la música
-@onready var mole_scene = preload("res://scenes/mole.tscn")   # Escena de la mole
-@onready var ticket_label = $CanvasLayer/ticketLabel # Contador de tickets
-
+@onready var music = $Music
+@onready var play_button = $CanvasLayer/playButton
+@onready var game_layer = $GameLayer
+@onready var beat_timer = $BeatTimer
+@onready var mole_scene = preload("res://scenes/mole.tscn")
+@onready var ticket_label = $CanvasLayer/ticketLabel   # ✅ Usamos ticketLabel
 
 # Configuración de la grilla
 const GRID_SIZE = 3
-const SPACING = 120   # distancia entre celdas
-var grid_positions: Array[Vector2] = []   # posiciones absolutas de cada celda
-var occupied_cells: Array[bool] = []      # si una celda está ocupada o no
+const SPACING = 120
+var grid_positions: Array[Vector2] = []
+var occupied_cells: Array[bool] = []
 
-# Sistema de puntos
-var tickets: int = 10           # Tickets actuales
-var hit_value: int = 1        # Valor al golpear mole (más adelante lo ajustamos con A/D)
-var miss_value: int = -1      # Valor al perder mole
+# Sistema de tickets
+var tickets: int = 10
+var mode: String = "fast"
+
+# Valores de BPM
+const FAST_BPM = 148.0
+const SLOW_BPM = 74.0
+
+# Sistema de puntos (dependen del modo)
+var hit_value: int = 1
+var miss_value: int = -1
 
 
 # ==========================
 # Ready
 # ==========================
 func _ready():
-	# Conectar botón Play
 	play_button.pressed.connect(_on_play_button_pressed)
-
-	# Conectar el Timer de beats
 	beat_timer.timeout.connect(_on_beat)
 
-	# Calcular posiciones de la grilla centrada
 	_generate_grid()
-
-	# Inicializar celdas como libres
 	occupied_cells.resize(grid_positions.size())
 	occupied_cells.fill(false)
 
-	# Configurar el Timer con el BPM de Toby Fox - "It's TV Time!"
-	# BPM original: 148 → cada beat ≈ 0.405 segundos
-	# Lo bajamos a la mitad → 74 BPM → cada beat ≈ 0.81 segundos
-	var bpm = 74.0
-	beat_timer.wait_time = 60.0 / bpm
+	beat_timer.wait_time = 60.0 / FAST_BPM
 	beat_timer.autostart = false
 	beat_timer.one_shot = false
 
-
-# ==========================
-# Actualizar ticketLabel
-# ==========================
-func _update_ticket_label():
-	ticket_label.text = "Tickets: %d" % tickets
+	_update_ticket_label()
 
 
 # ==========================
@@ -66,7 +57,6 @@ func _generate_grid():
 	var grid_width = (GRID_SIZE - 1) * SPACING
 	var grid_height = (GRID_SIZE - 1) * SPACING
 
-	# Centramos la grilla en pantalla y la bajamos un poco (+120)
 	var start_x = screen_size.x / 2.0 - grid_width / 2.0
 	var start_y = screen_size.y / 2.0 - grid_height / 2.0 + 120.0
 
@@ -77,10 +67,29 @@ func _generate_grid():
 
 
 # ==========================
+# Procesar input (A/D)
+# ==========================
+func _process(delta):
+	if Input.is_action_just_pressed("mode_slow"):
+		mode = "slow"
+		hit_value = 2
+		miss_value = -2
+		beat_timer.wait_time = 60.0 / SLOW_BPM
+		print("Modo cambiado a LENTO (74 BPM)")
+		_update_ticket_label()
+	elif Input.is_action_just_pressed("mode_fast"):
+		mode = "fast"
+		hit_value = 1
+		miss_value = -1
+		beat_timer.wait_time = 60.0 / FAST_BPM
+		print("Modo cambiado a RÁPIDO (148 BPM)")
+		_update_ticket_label()
+
+
+# ==========================
 # Callback en cada beat
 # ==========================
 func _on_beat():
-	# En cada beat de la música intentamos spawnear una mole
 	_spawn_mole()
 
 
@@ -88,52 +97,84 @@ func _on_beat():
 # Spawn de moles
 # ==========================
 func _spawn_mole():
-	# Buscar celdas libres
 	var free_cells = []
 	for i in range(occupied_cells.size()):
 		if not occupied_cells[i]:
 			free_cells.append(i)
 
 	if free_cells.size() == 0:
-		return  # todas ocupadas
+		return
 
-	# Elegir celda aleatoria libre
 	var cell_index = free_cells[randi() % free_cells.size()]
 	var mole = mole_scene.instantiate()
 
 	mole.position = grid_positions[cell_index]
-	mole.cell_index = cell_index   # cada mole sabe en qué celda está
+	mole.cell_index = cell_index
 	mole.mole_whacked.connect(_on_mole_whacked)
 	mole.mole_expired.connect(_on_mole_expired)
 
 	occupied_cells[cell_index] = true
-	game_layer.add_child(mole)   # ahora las moles se agregan dentro del GameLayer
-	
+	game_layer.add_child(mole)
+
 
 # ==========================
-# Callback cuando mole expira sola
+# Mole expirada
 # ==========================
 func _on_mole_expired(mole):
 	occupied_cells[mole.cell_index] = false
-	tickets += miss_value   # 🔥 Restamos puntos por dejarla ir
+	tickets += miss_value
 	print("Mole perdida! Tickets: %d" % tickets)
+	_update_ticket_label("miss")
+	_check_game_over()
 	mole.queue_free()
 
 
 # ==========================
-# Callback cuando mole es whacked
+# Mole golpeada
 # ==========================
 func _on_mole_whacked(mole):
 	occupied_cells[mole.cell_index] = false
-	tickets += hit_value   # 🔥 Sumamos puntos al golpear
+	tickets += hit_value
 	print("Mole golpeada! Tickets: %d" % tickets)
+	_update_ticket_label("hit")
+	_check_game_over()
 	mole.queue_free()
+
+
+# ==========================
+# Actualizar el label
+# ==========================
+func _update_ticket_label(event: String = ""):
+	ticket_label.text = "🎟️ Tickets: %d (%s)" % [tickets, mode]
+
+	# Efecto de color según evento
+	if event == "hit":
+		ticket_label.modulate = Color(0, 1, 0)   # Verde
+	elif event == "miss":
+		ticket_label.modulate = Color(1, 0, 0)   # Rojo
+	else:
+		ticket_label.modulate = Color(1, 1, 1)   # Blanco
+
+	# Hacemos que vuelva al blanco luego de 0.3s
+	await get_tree().create_timer(0.3).timeout
+	ticket_label.modulate = Color(1, 1, 1)
+
+
+# ==========================
+# Verificar si se acabaron los tickets
+# ==========================
+func _check_game_over():
+	if tickets <= 0:
+		print("Game Over!")
+		beat_timer.stop()
+		music.stop()
+		play_button.visible = true
 
 
 # ==========================
 # Botón Play
 # ==========================
 func _on_play_button_pressed():
-	play_button.visible = false   # Ocultar botón
-	music.play()                  # Reproducir música
-	beat_timer.start()            # Iniciar spawn de moles en tiempo con el BPM
+	play_button.visible = false
+	music.play()
+	beat_timer.start()
