@@ -148,7 +148,6 @@ func _on_mole_whacked(mole):
 # Actualizar el label
 # ==========================
 func _update_ticket_label(event: String = ""):
-	# Convertir tickets a String para evitar errores
 	ticket_label.text = "🎟️ Tickets: " + str(tickets) + " (" + mode + ")"
 
 	if event == "hit":
@@ -186,8 +185,6 @@ func _end_game(won: bool):
 	if music.playing:
 		music.stop()
 
-	play_button.visible = true
-
 	# Limpiar pantalla anterior
 	if end_screen and is_instance_valid(end_screen):
 		end_screen.queue_free()
@@ -202,16 +199,21 @@ func _end_game(won: bool):
 	end_screen = (win_screen_scene if won else game_over_scene).instantiate()
 	add_child(end_screen)
 
-	# Fade-in correcto Godot 4
+	# Fade-in Godot 4
 	end_screen.modulate.a = 0.0
 	var t = end_screen.create_tween()
-	t.tween_property(end_screen, "modulate:a", 1.0, 0.5)  # valor final y duración
+	t.tween_property(end_screen, "modulate:a", 1.0, 0.5)
 
-	# Conectar botón Retry solo si no estaba conectado
-	var retry_button = end_screen.get_node("Button")  # ruta corregida
+	# Conectar botones de fin de juego
+	var retry_button = end_screen.get_node("retryButton")
+	var main_menu_button = end_screen.get_node("mainMenuButton")
 	var retry_callable = Callable(self, "_on_retry_pressed")
+	var menu_callable = Callable(self, "_on_main_menu_pressed")
+
 	if not retry_button.pressed.is_connected(retry_callable):
 		retry_button.pressed.connect(retry_callable)
+	if not main_menu_button.pressed.is_connected(menu_callable):
+		main_menu_button.pressed.connect(menu_callable)
 
 # ==========================
 # Retry
@@ -237,6 +239,16 @@ func _on_retry_pressed():
 	_update_ticket_label()
 	music.play()
 	beat_timer.start()
+
+# ==========================
+# Main Menu Button
+# ==========================
+func _on_main_menu_pressed():
+	if end_screen and is_instance_valid(end_screen):
+		end_screen.queue_free()
+		end_screen = null
+
+	play_button.visible = true
 
 # ==========================
 # Botón Play

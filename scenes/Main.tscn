@@ -36,3 +36,7 @@ text = "Smash!"
 offset_left = 930.0
 offset_right = 1147.0
 offset_bottom = 101.0
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 40.0
