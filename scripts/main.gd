@@ -4,6 +4,7 @@ extends Node2D
 # Variables y escenas
 # ==========================
 @onready var music = $Music
+@onready var menu_music = $MenuMusic
 @onready var play_button = $CanvasLayer/playButton
 @onready var game_layer = $GameLayer
 @onready var beat_timer = $BeatTimer
@@ -25,7 +26,7 @@ var end_screen: Node = null   # Referencia a pantalla activa
 
 # Configuración de la grilla
 const GRID_SIZE = 3
-const SPACING = 120
+const SPACING = 260
 var grid_positions: Array[Vector2] = []
 var occupied_cells: Array[bool] = []
 
@@ -36,7 +37,7 @@ var mode: String = "fast"
 
 # Valores de BPM
 const FAST_BPM = 148.0
-const SLOW_BPM = 88.0  # Ajustado al 60% del fast
+const SLOW_BPM = 78.0  # Ajustado al 60% del fast
 
 # Sistema de puntos
 var hit_value: int = 1
@@ -49,6 +50,8 @@ const WIN_THRESHOLD = 300
 # Ready
 # ==========================
 func _ready():
+	#menu_music.loop = true
+	menu_music.play()
 	countdown_label.visible = false
 	play_button.pressed.connect(_on_play_button_pressed)
 	beat_timer.timeout.connect(_on_beat)
@@ -84,10 +87,10 @@ func _ready():
 func _generate_grid():
 	grid_positions.clear()
 	var screen_size = get_viewport_rect().size
-	var grid_width = (GRID_SIZE - 1) * SPACING
-	var grid_height = (GRID_SIZE - 1) * SPACING
+	var grid_width = (GRID_SIZE - 1) * SPACING * 1.0
+	var grid_height = (GRID_SIZE - 1) * SPACING * 0.1
 	var start_x = screen_size.x / 2.0 - grid_width / 2.0
-	var start_y = screen_size.y / 2.0 - grid_height / 2.0 + 120.0
+	var start_y = screen_size.y / 2.0 - grid_height / 2.0 - 45.0
 
 	for row in range(GRID_SIZE):
 		for col in range(GRID_SIZE):
@@ -202,7 +205,7 @@ func _on_mole_whacked(mole):
 # Actualizar el label
 # ==========================
 func _update_ticket_label(event: String = ""):
-	ticket_label.text = "🎟️ Tickets: " + str(tickets) + " (" + mode + ")"
+	ticket_label.text = "🎟️: " + str(tickets) + " (" + mode + ")"
 
 	if event == "hit":
 		ticket_label.modulate = Color(0, 1, 0)
@@ -236,6 +239,8 @@ func _on_song_finished():
 func _end_game(won: bool):
 	a_key.visible = false
 	d_key.visible = false
+	# Ocultar puntaje actual
+	ticket_label.visible = false
 	final_score = tickets  # guarda el puntaje actual antes de mostrar la pantalla
 
 	if not beat_timer.is_stopped():
@@ -321,6 +326,9 @@ func _on_retry_pressed():
 # Main Menu Button
 # ==========================
 func _on_main_menu_pressed():
+	#menu_music.loop = true
+	menu_music.play()
+
 	if end_screen and is_instance_valid(end_screen):
 		end_screen.queue_free()
 		end_screen = null
@@ -354,6 +362,8 @@ func _on_main_menu_pressed():
 func _on_play_button_pressed():
 	a_key.visible = true
 	d_key.visible = true
+	if menu_music.playing:
+		menu_music.stop()
 	
 	# Fade-out menú (play_button + CTStext)
 	var tween_button = play_button.create_tween()

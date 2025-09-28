@@ -1,11 +1,11 @@
 [gd_scene load_steps=5 format=3 uid="uid://cjx2tc0quotnp"]
 
 [ext_resource type="Script" uid="uid://c56ah4rpnlumt" path="res://scripts/moleWhack.gd" id="1_0o2lx"]
-[ext_resource type="Texture2D" uid="uid://cvn5etu1h8upc" path="res://assets/sprites/mole.png" id="2_0o2lx"]
-[ext_resource type="Texture2D" uid="uid://beeeawqdjcnqm" path="res://assets/sprites/whacked.png" id="2_kln4g"]
+[ext_resource type="Texture2D" uid="uid://6ft5pdpci1yo" path="res://assets/sprites/mole dead).png" id="2_kln4g"]
+[ext_resource type="Texture2D" uid="uid://dcpw0bplmyfpu" path="res://assets/sprites/mole1.png" id="3_kln4g"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0o2lx"]
-size = Vector2(13.344383, 20)
+size = Vector2(17.46302, 17.068459)
 
 [node name="Area2D" type="Area2D"]
 scale = Vector2(-6.0699706, 5.9173474)
@@ -14,13 +14,12 @@ whacked_texture = ExtResource("2_kln4g")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1
-scale = Vector2(0.1, 0.1)
-texture = ExtResource("2_0o2lx")
-region_enabled = true
+scale = Vector2(0.025, 0.025)
+texture = ExtResource("3_kln4g")
 region_rect = Rect2(16, 0, 128, 200)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0.08237302, 0)
+position = Vector2(-0.3294915, 1.4364536)
 scale = Vector2(0.9999998, 1)
 shape = SubResource("RectangleShape2D_0o2lx")
 

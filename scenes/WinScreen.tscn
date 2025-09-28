@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://dmes26btgjmig"]
 
-[ext_resource type="AudioStream" uid="uid://drqhnmdb5l2n" path="res://assets/sounds/coin.wav" id="1_q8i45"]
+[ext_resource type="AudioStream" uid="uid://cstqwt40ogce7" path="res://assets/sounds/victoria.wav" id="1_q8i45"]
 [ext_resource type="Texture2D" uid="uid://tm85sp5logv" path="res://assets/sprites/WinScreen.png" id="2_jrum5"]
 [ext_resource type="FontFile" uid="uid://bmx3y34nc7k2c" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_f4f3g"]
 
@@ -16,24 +16,30 @@ grow_vertical = 2
 stream = ExtResource("1_q8i45")
 autoplay = true
 
-[node name="mainMenuButton" type="TextureButton" parent="."]
+[node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0
 offset_right = 1366.0
 offset_bottom = 768.0
-texture_normal = ExtResource("2_jrum5")
+texture = ExtResource("2_jrum5")
+
+[node name="mainMenuButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 936.0
+offset_right = 1366.0
+offset_bottom = 84.0
 stretch_mode = 0
 
 [node name="CTMtext" type="Label" parent="."]
 layout_mode = 0
-offset_left = 991.0
+offset_left = 964.0
 offset_top = 14.0
-offset_right = 1354.0
+offset_right = 1352.0
 offset_bottom = 69.0
 theme_override_colors/font_color = Color(5.827419, 1.8697278, 2.0446537, 1)
 theme_override_fonts/font = ExtResource("3_f4f3g")
 theme_override_font_sizes/font_size = 25
-text = "Click anywere to
-go back to Menu!"
+text = "Click here to go 
+back to Menu!"
 
 [node name="retryButton" type="TextureButton" parent="."]
 layout_mode = 0
