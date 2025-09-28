@@ -8,7 +8,7 @@ extends Node2D
 @onready var game_layer = $GameLayer
 @onready var beat_timer = $BeatTimer
 @onready var mole_scene = preload("res://scenes/mole.tscn")
-@onready var ticket_label = $CanvasLayer/ticketLabel   # ✅ Usamos ticketLabel
+@onready var ticket_label = $CanvasLayer/ticketLabel
 
 # Configuración de la grilla
 const GRID_SIZE = 3
@@ -24,10 +24,14 @@ var mode: String = "fast"
 const FAST_BPM = 148.0
 const SLOW_BPM = 74.0
 
-# Sistema de puntos (dependen del modo)
+# Sistema de puntos
 var hit_value: int = 1
 var miss_value: int = -1
 
+# ==========================
+# Condición de victoria
+# ==========================
+const WIN_THRESHOLD: int = 300   # 🔥 Ajusta este valor para balancear
 
 # ==========================
 # Ready
@@ -35,6 +39,7 @@ var miss_value: int = -1
 func _ready():
 	play_button.pressed.connect(_on_play_button_pressed)
 	beat_timer.timeout.connect(_on_beat)
+	music.finished.connect(_on_music_finished)   # ✅ Detectar cuando termina la canción
 
 	_generate_grid()
 	occupied_cells.resize(grid_positions.size())
@@ -45,7 +50,6 @@ func _ready():
 	beat_timer.one_shot = false
 
 	_update_ticket_label()
-
 
 # ==========================
 # Generar grilla centrada
@@ -64,7 +68,6 @@ func _generate_grid():
 		for col in range(GRID_SIZE):
 			var pos = Vector2(start_x + col * SPACING, start_y + row * SPACING)
 			grid_positions.append(pos)
-
 
 # ==========================
 # Procesar input (A/D)
@@ -85,13 +88,11 @@ func _process(delta):
 		print("Modo cambiado a RÁPIDO (148 BPM)")
 		_update_ticket_label()
 
-
 # ==========================
 # Callback en cada beat
 # ==========================
 func _on_beat():
 	_spawn_mole()
-
 
 # ==========================
 # Spawn de moles
@@ -116,7 +117,6 @@ func _spawn_mole():
 	occupied_cells[cell_index] = true
 	game_layer.add_child(mole)
 
-
 # ==========================
 # Mole expirada
 # ==========================
@@ -128,7 +128,6 @@ func _on_mole_expired(mole):
 	_check_game_over()
 	mole.queue_free()
 
-
 # ==========================
 # Mole golpeada
 # ==========================
@@ -139,7 +138,6 @@ func _on_mole_whacked(mole):
 	_update_ticket_label("hit")
 	_check_game_over()
 	mole.queue_free()
-
 
 # ==========================
 # Actualizar el label
@@ -159,22 +157,43 @@ func _update_ticket_label(event: String = ""):
 	await get_tree().create_timer(0.3).timeout
 	ticket_label.modulate = Color(1, 1, 1)
 
-
 # ==========================
 # Verificar si se acabaron los tickets
 # ==========================
 func _check_game_over():
 	if tickets <= 0:
-		print("Game Over!")
-		beat_timer.stop()
-		music.stop()
-		play_button.visible = true
+		print("Game Over! (sin tickets)")
+		_end_game(false)
 
+# ==========================
+# Callback cuando la música termina
+# ==========================
+func _on_music_finished():
+	print("La canción terminó!")
+	if tickets >= WIN_THRESHOLD:
+		_end_game(true)
+	else:
+		_end_game(false)
+
+# ==========================
+# Terminar juego
+# ==========================
+func _end_game(won: bool):
+	beat_timer.stop()
+	music.stop()
+	play_button.visible = true
+
+	if won:
+		print("🎉 Has ganado con %d tickets!" % tickets)
+	else:
+		print("❌ Game Over. Tickets finales: %d" % tickets)
 
 # ==========================
 # Botón Play
 # ==========================
 func _on_play_button_pressed():
 	play_button.visible = false
+	tickets = 10   # 🔥 Reiniciar tickets al empezar
+	_update_ticket_label()
 	music.play()
 	beat_timer.start()
