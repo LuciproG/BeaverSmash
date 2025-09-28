@@ -10,6 +10,7 @@ extends Node2D
 @onready var mole_scene = preload("res://scenes/mole.tscn")
 @onready var ticket_label = $CanvasLayer/ticketLabel
 @onready var cts_text = $CanvasLayer/CTStext  # Label de texto inicial
+@onready var countdown_label = $CanvasLayer/CountdownLabel
 
 # Pantallas de fin de juego
 @onready var win_screen_scene = preload("res://scenes/WinScreen.tscn")
@@ -42,6 +43,7 @@ const WIN_THRESHOLD = 300
 # Ready
 # ==========================
 func _ready():
+	countdown_label.visible = false
 	play_button.pressed.connect(_on_play_button_pressed)
 	beat_timer.timeout.connect(_on_beat)
 	music.finished.connect(_on_song_finished)
@@ -269,8 +271,7 @@ func _on_retry_pressed():
 		if is_instance_valid(child):
 			child.queue_free()
 
-	music.play()
-	beat_timer.start()
+	_start_countdown()
 
 # ==========================
 # Main Menu Button
@@ -329,5 +330,20 @@ func _on_play_button_pressed():
 
 	_update_ticket_label()  # actualizar label inmediatamente
 
+	_start_countdown()
+
+
+# ==========================
+# Countdown antes de iniciar
+# ==========================
+func _start_countdown() -> void:
+	countdown_label.visible = true
+	for i in [3,2,1]:
+		countdown_label.text = str(i)
+		await get_tree().create_timer(1.0).timeout
+	countdown_label.text = "GO!"
+	await get_tree().create_timer(1.0).timeout
+	countdown_label.visible = false
+	ticket_label.visible = true
 	music.play()
 	beat_timer.start()
