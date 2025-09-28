@@ -140,9 +140,9 @@ func _spawn_mole():
 
 	# Ajustar lifetime según modo
 	if mode == "slow":
-		mole.lifetime = 1.5
+		mole.lifetime = 2.5
 	else:
-		mole.lifetime = 1.0
+		mole.lifetime = 2.0
 
 	# Godot 4: usar Callable para is_connected
 	var whack_callable = Callable(self, "_on_mole_whacked")

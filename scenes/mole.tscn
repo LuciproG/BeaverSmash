@@ -10,7 +10,8 @@ size = Vector2(17.46302, 17.068459)
 [node name="Area2D" type="Area2D"]
 scale = Vector2(-6.0699706, 5.9173474)
 script = ExtResource("1_0o2lx")
-whacked_texture = ExtResource("2_kln4g")
+lifetime = null
+hit_texture = ExtResource("2_kln4g")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1
