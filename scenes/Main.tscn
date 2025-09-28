@@ -1,9 +1,57 @@
-[gd_scene load_steps=5 format=3 uid="uid://q3ipeikktlj8"]
+[gd_scene load_steps=15 format=3 uid="uid://q3ipeikktlj8"]
 
 [ext_resource type="Script" uid="uid://cola3m3t7n0eb" path="res://scripts/main.gd" id="1_elqb8"]
 [ext_resource type="AudioStream" uid="uid://b8g07ui4se7tp" path="res://assets/sounds/27. Its TV Time! (DELTARUNE Chapter 34 Soundtrack) - Toby Fox.mp3" id="2_rvslj"]
 [ext_resource type="Texture2D" uid="uid://ps5nk35twwts" path="res://assets/sprites/TitleScreen.png" id="3_0bbpv"]
 [ext_resource type="FontFile" uid="uid://bmx3y34nc7k2c" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="4_rarhs"]
+[ext_resource type="Texture2D" uid="uid://dlyusfesfl8ne" path="res://assets/sprites/Gerald's Keys/Keys/A-Key.png" id="5_c01mt"]
+[ext_resource type="Texture2D" uid="uid://n3jdjixhy7qo" path="res://assets/sprites/Gerald's Keys/Keys/D-Key.png" id="6_nxtc6"]
+[ext_resource type="AudioStream" uid="uid://drqhnmdb5l2n" path="res://assets/sounds/coin.wav" id="7_nxtc6"]
+[ext_resource type="AudioStream" uid="uid://b6c7vguspjdy6" path="res://assets/sounds/power_up.wav" id="8_jlsqs"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jlsqs"]
+atlas = ExtResource("5_c01mt")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q8u5g"]
+atlas = ExtResource("5_c01mt")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lhr70"]
+animations = [{
+"frames": [{
+"duration": 0.4,
+"texture": SubResource("AtlasTexture_jlsqs")
+}, {
+"duration": 0.4,
+"texture": SubResource("AtlasTexture_q8u5g")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wp0k4"]
+atlas = ExtResource("6_nxtc6")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bjd11"]
+atlas = ExtResource("6_nxtc6")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_qmy6f"]
+animations = [{
+"frames": [{
+"duration": 0.4,
+"texture": SubResource("AtlasTexture_wp0k4")
+}, {
+"duration": 0.4,
+"texture": SubResource("AtlasTexture_bjd11")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_elqb8")
@@ -67,3 +115,25 @@ grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.2901961, 0.32156864, 1)
 theme_override_fonts/font = ExtResource("4_rarhs")
 theme_override_font_sizes/font_size = 200
+
+[node name="AKey" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(400, 716)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_lhr70")
+autoplay = "default"
+frame_progress = 0.50074446
+
+[node name="DKey" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(966, 716)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_qmy6f")
+autoplay = "default"
+frame_progress = 0.40957102
+
+[node name="CountdownSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("7_nxtc6")
+
+[node name="CountdownGoSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("8_jlsqs")

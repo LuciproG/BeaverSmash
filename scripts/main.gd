@@ -11,6 +11,11 @@ extends Node2D
 @onready var ticket_label = $CanvasLayer/ticketLabel
 @onready var cts_text = $CanvasLayer/CTStext  # Label de texto inicial
 @onready var countdown_label = $CanvasLayer/CountdownLabel
+@onready var countdown_sound = $CountdownSound
+@onready var countdown_go_sound = $CountdownGoSound
+@onready var a_key = $AKey
+@onready var d_key = $DKey
+
 
 # Pantallas de fin de juego
 @onready var win_screen_scene = preload("res://scenes/WinScreen.tscn")
@@ -26,6 +31,7 @@ var occupied_cells: Array[bool] = []
 
 # Sistema de tickets
 var tickets: int = 10
+var final_score: int = 0  # Guardará el puntaje final
 var mode: String = "fast"
 
 # Valores de BPM
@@ -47,6 +53,8 @@ func _ready():
 	play_button.pressed.connect(_on_play_button_pressed)
 	beat_timer.timeout.connect(_on_beat)
 	music.finished.connect(_on_song_finished)
+	a_key.visible = false
+	d_key.visible = false
 
 	_generate_grid()
 	occupied_cells.resize(grid_positions.size())
@@ -159,11 +167,36 @@ func _on_mole_expired(mole):
 # Mole golpeada
 # ==========================
 func _on_mole_whacked(mole):
+	# Liberar celda
 	occupied_cells[mole.cell_index] = false
+
+	# Actualizar tickets
 	tickets += hit_value
 	_update_ticket_label("hit")
 	_check_game_over()
-	mole.queue_free()
+
+	# Cambiar sprite al frame golpeado
+	if mole.has_node("Sprite2D"):
+		var sprite = mole.get_node("Sprite2D")
+		if sprite.texture is AtlasTexture:
+			sprite.region_enabled = true
+			sprite.region_rect = Rect2(Vector2(160,200), Vector2(152,192))
+		elif sprite.texture is SpriteFrames:
+			# Si es AnimatedSprite2D
+			sprite.frame = 1  # índice del frame "golpeado"
+
+	# Desactivar CollisionShape para que no reciba más clicks
+	if mole.has_node("CollisionShape2D"):
+		mole.get_node("CollisionShape2D").disabled = true
+
+	# Cancelar LifetimeTimer para que no lo borre prematuramente
+	if mole.has_node("LifetimeTimer"):
+		mole.get_node("LifetimeTimer").stop()
+
+	# Esperar 0.3 segundos y eliminar la mole
+	await get_tree().create_timer(0.3).timeout
+	if is_instance_valid(mole):
+		mole.queue_free()
 
 # ==========================
 # Actualizar el label
@@ -201,6 +234,10 @@ func _on_song_finished():
 # Pantallas de fin de juego
 # ==========================
 func _end_game(won: bool):
+	a_key.visible = false
+	d_key.visible = false
+	final_score = tickets  # guarda el puntaje actual antes de mostrar la pantalla
+
 	if not beat_timer.is_stopped():
 		beat_timer.stop()
 	if music.playing:
@@ -224,6 +261,10 @@ func _end_game(won: bool):
 	end_screen.modulate.a = 0.0
 	var t = end_screen.create_tween()
 	t.tween_property(end_screen, "modulate:a", 1.0, 0.5)
+	
+	# Mostrar puntaje final en el Label
+	var score_label = end_screen.get_node("finalScoreLabel")
+	score_label.text = str(final_score)
 
 	# Conectar botones de fin de juego
 	var retry_button = end_screen.get_node("retryButton")
@@ -240,6 +281,9 @@ func _end_game(won: bool):
 # Retry
 # ==========================
 func _on_retry_pressed():
+	a_key.visible = true
+	d_key.visible = true
+	
 	if end_screen and is_instance_valid(end_screen):
 		end_screen.queue_free()
 		end_screen = null
@@ -308,6 +352,9 @@ func _on_main_menu_pressed():
 # Botón Play
 # ==========================
 func _on_play_button_pressed():
+	a_key.visible = true
+	d_key.visible = true
+	
 	# Fade-out menú (play_button + CTStext)
 	var tween_button = play_button.create_tween()
 	tween_button.tween_property(play_button, "modulate:a", 0.0, 0.5)
@@ -338,12 +385,22 @@ func _on_play_button_pressed():
 # ==========================
 func _start_countdown() -> void:
 	countdown_label.visible = true
-	for i in [3,2,1]:
+	for i in [3, 2, 1]:
 		countdown_label.text = str(i)
+		countdown_sound.play()  # Sonido normal
 		await get_tree().create_timer(1.0).timeout
 	countdown_label.text = "GO!"
+	countdown_go_sound.play()  # Sonido especial para GO!
 	await get_tree().create_timer(1.0).timeout
 	countdown_label.visible = false
 	ticket_label.visible = true
 	music.play()
 	beat_timer.start()
+
+# ==========================
+# Salir con ESC
+# ==========================
+func _input(event):
+	if event is InputEventKey and event.pressed:
+		if event.keycode == Key.KEY_ESCAPE:
+			get_tree().quit()

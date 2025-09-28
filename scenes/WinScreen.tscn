@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://dmes26btgjmig"]
+[gd_scene load_steps=4 format=3 uid="uid://dmes26btgjmig"]
 
-[ext_resource type="Texture2D" uid="uid://ps5nk35twwts" path="res://assets/sprites/TitleScreen.png" id="1_ulig0"]
+[ext_resource type="AudioStream" uid="uid://drqhnmdb5l2n" path="res://assets/sounds/coin.wav" id="1_q8i45"]
+[ext_resource type="Texture2D" uid="uid://tm85sp5logv" path="res://assets/sprites/WinScreen.png" id="2_jrum5"]
+[ext_resource type="FontFile" uid="uid://bmx3y34nc7k2c" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_f4f3g"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -10,36 +12,40 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("1_q8i45")
+autoplay = true
+
+[node name="mainMenuButton" type="TextureButton" parent="."]
 layout_mode = 0
 offset_right = 1366.0
 offset_bottom = 768.0
-texture = ExtResource("1_ulig0")
-expand_mode = 1
+texture_normal = ExtResource("2_jrum5")
+stretch_mode = 0
 
-[node name="Label" type="Label" parent="."]
+[node name="CTMtext" type="Label" parent="."]
 layout_mode = 0
-offset_left = 185.0
-offset_top = -2.0
-offset_right = 941.0
-offset_bottom = 169.0
-theme_override_font_sizes/font_size = 125
-text = "YOU WIN 🎉"
+offset_left = 991.0
+offset_top = 14.0
+offset_right = 1354.0
+offset_bottom = 69.0
+theme_override_colors/font_color = Color(5.827419, 1.8697278, 2.0446537, 1)
+theme_override_fonts/font = ExtResource("3_f4f3g")
+theme_override_font_sizes/font_size = 25
+text = "Click anywere to
+go back to Menu!"
 
-[node name="retryButton" type="Button" parent="."]
+[node name="retryButton" type="TextureButton" parent="."]
 layout_mode = 0
-offset_left = 307.0
-offset_top = 177.0
-offset_right = 800.0
-offset_bottom = 356.0
-theme_override_font_sizes/font_size = 125
-text = "Retry"
+offset_right = 40.0
+offset_bottom = 40.0
 
-[node name="mainMenuButton" type="Button" parent="."]
+[node name="finalScoreLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 307.0
-offset_top = 386.0
-offset_right = 800.0
-offset_bottom = 565.0
-theme_override_font_sizes/font_size = 125
-text = "Menu"
+offset_left = 1104.0
+offset_top = 643.0
+offset_right = 1374.0
+offset_bottom = 734.0
+theme_override_fonts/font = ExtResource("3_f4f3g")
+theme_override_font_sizes/font_size = 85
+text = "999"

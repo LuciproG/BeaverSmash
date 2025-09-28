@@ -1,51 +1,60 @@
 extends Area2D
 
-# ==========================
-# Señales
-# ==========================
 signal mole_whacked(mole)
 signal mole_expired(mole)
 
-# ==========================
-# Variables
-# ==========================
+@export var lifetime: float = 1.0
 var cell_index: int = -1
-@export var lifetime: float = 2.0
 
+# Referencias internas
+@onready var sprite: Sprite2D = $Sprite2D
+@onready var collision: CollisionShape2D = $CollisionShape2D
 @onready var lifetime_timer: Timer = $LifetimeTimer
 
-# ==========================
-# Ready
-# ==========================
+
+# Ruta de la textura golpeada
+@export var whacked_texture: Texture2D
+
 func _ready():
-	# Configurar el timer de vida
 	lifetime_timer.wait_time = lifetime
 	lifetime_timer.one_shot = true
-	lifetime_timer.timeout.connect(_on_lifetime_timeout)
 	lifetime_timer.start()
-	
-	# Conectar input_event solo si no estaba conectado
-	var input_callable = Callable(self, "_on_input_event")
-	if not input_event.is_connected(input_callable):
-		input_event.connect(input_callable)
+	lifetime_timer.timeout.connect(_on_lifetime_timeout)
 
-# ==========================
-# Cuando la mole es golpeada
-# ==========================
-func whack():
-	mole_whacked.emit(self)
-	queue_free()
+func _input_event(_viewport, event, _shape_idx):
+	if event is InputEventMouseButton and event.pressed:
+		_whack()
 
-# ==========================
-# Cuando expira el tiempo de vida
-# ==========================
 func _on_lifetime_timeout():
-	mole_expired.emit(self)
+	emit_signal("mole_expired", self)
 	queue_free()
 
-# ==========================
-# Detectar clic del jugador
-# ==========================
-func _on_input_event(_viewport, event, _shape_idx):
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		whack()
+func _whack():
+	# Evitar doble golpe
+	if not collision.disabled:
+		# Señal al main
+		emit_signal("mole_whacked", self)
+
+		# Cambiar sprite al frame golpeado
+		if whacked_texture:
+			sprite.texture = whacked_texture
+
+		# Desactivar colisión para que no reciba más clicks
+		collision.disabled = true
+
+		# Detener timer para que no borre antes de tiempo
+		lifetime_timer.stop()
+
+		# Esperar 0.3s antes de eliminar
+		_delayed_remove()
+
+func _delayed_remove():
+	var t = Timer.new()
+	t.wait_time = 0.3
+	t.one_shot = true
+	add_child(t)
+	t.start()
+	t.timeout.connect(func():
+		if is_instance_valid(self):
+			queue_free()
+	)
