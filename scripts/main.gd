@@ -8,6 +8,8 @@ extends Node2D
 @onready var game_layer = $GameLayer   # Capa donde se instancian las moles
 @onready var beat_timer = $BeatTimer   # Timer sincronizado con el BPM de la música
 @onready var mole_scene = preload("res://scenes/mole.tscn")   # Escena de la mole
+@onready var ticket_label = $CanvasLayer/ticketLabel # Contador de tickets
+
 
 # Configuración de la grilla
 const GRID_SIZE = 3
@@ -16,7 +18,7 @@ var grid_positions: Array[Vector2] = []   # posiciones absolutas de cada celda
 var occupied_cells: Array[bool] = []      # si una celda está ocupada o no
 
 # Sistema de puntos
-var points: int = 0           # Puntos actuales
+var tickets: int = 10           # Tickets actuales
 var hit_value: int = 1        # Valor al golpear mole (más adelante lo ajustamos con A/D)
 var miss_value: int = -1      # Valor al perder mole
 
@@ -45,6 +47,13 @@ func _ready():
 	beat_timer.wait_time = 60.0 / bpm
 	beat_timer.autostart = false
 	beat_timer.one_shot = false
+
+
+# ==========================
+# Actualizar ticketLabel
+# ==========================
+func _update_ticket_label():
+	ticket_label.text = "Tickets: %d" % tickets
 
 
 # ==========================
@@ -106,8 +115,8 @@ func _spawn_mole():
 # ==========================
 func _on_mole_expired(mole):
 	occupied_cells[mole.cell_index] = false
-	points += miss_value   # 🔥 Restamos puntos por dejarla ir
-	print("Mole perdida! Puntos: %d" % points)
+	tickets += miss_value   # 🔥 Restamos puntos por dejarla ir
+	print("Mole perdida! Tickets: %d" % tickets)
 	mole.queue_free()
 
 
@@ -116,8 +125,8 @@ func _on_mole_expired(mole):
 # ==========================
 func _on_mole_whacked(mole):
 	occupied_cells[mole.cell_index] = false
-	points += hit_value   # 🔥 Sumamos puntos al golpear
-	print("Mole golpeada! Puntos: %d" % points)
+	tickets += hit_value   # 🔥 Sumamos puntos al golpear
+	print("Mole golpeada! Tickets: %d" % tickets)
 	mole.queue_free()
 
 
