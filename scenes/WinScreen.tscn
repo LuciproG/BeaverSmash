@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://dmes26btgjmig"]
 
-[ext_resource type="AudioStream" uid="uid://cstqwt40ogce7" path="res://assets/sounds/victoria.wav" id="1_q8i45"]
+[ext_resource type="AudioStream" uid="uid://cstqwt40ogce7" path="res://assets/sounds/Victory Sound.wav" id="1_q8i45"]
 [ext_resource type="Texture2D" uid="uid://tm85sp5logv" path="res://assets/sprites/WinScreen.png" id="2_jrum5"]
 [ext_resource type="FontFile" uid="uid://bmx3y34nc7k2c" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_f4f3g"]
 
@@ -48,10 +48,11 @@ offset_bottom = 40.0
 
 [node name="finalScoreLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 1104.0
+offset_left = 1098.0
 offset_top = 643.0
-offset_right = 1374.0
+offset_right = 1368.0
 offset_bottom = 734.0
 theme_override_fonts/font = ExtResource("3_f4f3g")
 theme_override_font_sizes/font_size = 85
 text = "999"
+horizontal_alignment = 1
