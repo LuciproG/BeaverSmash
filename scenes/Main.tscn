@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cola3m3t7n0eb" path="res://scripts/main.gd" id="1_elqb8"]
 [ext_resource type="Texture2D" uid="uid://bi1k6yn66wly1" path="res://assets/sprites/MainGameScene.png" id="2_lhr70"]
 [ext_resource type="Texture2D" uid="uid://ps5nk35twwts" path="res://assets/sprites/TitleScreen.png" id="3_0bbpv"]
-[ext_resource type="AudioStream" uid="uid://dsoqyi3yjqwiq" path="res://assets/music/Gameplay Song.mp3" id="3_lhr70"]
+[ext_resource type="AudioStream" uid="uid://dsoqyi3yjqwiq" path="res://assets/music/Daydream Origins.mp3" id="3_lhr70"]
 [ext_resource type="FontFile" uid="uid://bmx3y34nc7k2c" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="4_rarhs"]
 [ext_resource type="Texture2D" uid="uid://dlyusfesfl8ne" path="res://assets/sprites/Gerald's Keys/Keys/A-Key.png" id="5_c01mt"]
 [ext_resource type="Texture2D" uid="uid://n3jdjixhy7qo" path="res://assets/sprites/Gerald's Keys/Keys/D-Key.png" id="6_nxtc6"]
