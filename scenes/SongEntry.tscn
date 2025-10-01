@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbe4m25gsdqqe"]
+
+[ext_resource type="Script" uid="uid://bxouextwlmaxo" path="res://scripts/SongEntry.gd" id="1_g6a85"]
+
+[node name="Button" type="Button"]
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("1_g6a85")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="NameLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="DurationLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ScoreLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2

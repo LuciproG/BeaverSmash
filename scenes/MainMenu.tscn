@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=3 uid="uid://bnsue12kjpjox"]
+
+[ext_resource type="Script" uid="uid://smpqwwvluvxt" path="res://scripts/mainMenu.gd" id="1_ow34m"]
+[ext_resource type="Texture2D" uid="uid://ps5nk35twwts" path="res://assets/sprites/TitleScreen.png" id="2_l72w3"]
+[ext_resource type="FontFile" uid="uid://bmx3y34nc7k2c" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_826wr"]
+[ext_resource type="AudioStream" uid="uid://d30an4uob10ax" path="res://assets/music/Menu Music.mp3" id="4_ucygd"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ow34m")
+
+[node name="playButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_right = 1366.0
+offset_bottom = 768.0
+texture_normal = ExtResource("2_l72w3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="CTStext" type="Label" parent="."]
+layout_mode = 0
+offset_left = 702.0
+offset_top = 368.0
+offset_right = 1351.0
+offset_bottom = 400.0
+theme_override_colors/font_color = Color(1, 0.2901961, 0.32156864, 1)
+theme_override_fonts/font = ExtResource("3_826wr")
+theme_override_font_sizes/font_size = 30
+text = "Click Anywhere To Start!"
+
+[node name="MenuMusic" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_ucygd")
+autoplay = true
+parameters/looping = true

@@ -10,10 +10,9 @@ config_version=5
 
 [application]
 
-config/name="JamGame"
-run/main_scene="uid://q3ipeikktlj8"
+config/name="BeaverSmash"
+run/main_scene="uid://bnsue12kjpjox"
 config/features=PackedStringArray("4.5", "Forward Plus")
-config/icon="res://icon.svg"
 
 [display]
 
