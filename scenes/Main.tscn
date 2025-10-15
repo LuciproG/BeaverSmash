@@ -75,7 +75,6 @@ wait_time = 0.405
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="playButton" type="TextureButton" parent="CanvasLayer"]
-visible = false
 offset_right = 1366.0
 offset_bottom = 768.0
 texture_normal = ExtResource("3_0bbpv")
@@ -97,7 +96,6 @@ theme_override_font_sizes/font_size = 40
 text = "🎟: 999 (Fast)"
 
 [node name="CTStext" type="Label" parent="CanvasLayer"]
-visible = false
 offset_left = 702.0
 offset_top = 368.0
 offset_right = 1351.0

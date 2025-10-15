@@ -10,13 +10,13 @@ var songs = [
 		"name": "Song 1", # Nombre de la canción
 		"duration": "2:34", # Duración en minutos y segundos
 		"high_score": 5000, # Puntaje más alto
-		"illustration": preload("res://assets/sprites/TitleScreen.png") # Ilustración asociada
+		"illustration": preload("res://assets/sprites/song_1.png") # Ilustración asociada
 	},
 	{
 		"name": "Song 2",
 		"duration": "3:12",
 		"high_score": 3200,
-		"illustration": preload("res://assets/sprites/GameOverScreen.png")
+		"illustration": preload("res://assets/sprites/song_2.png")
 	}
 ]
 
