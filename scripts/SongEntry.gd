@@ -1,61 +1,34 @@
 extends Button
-
-# ==========================
-# Variables
-# ==========================
-@export var song_name: String = "Canción"
-@export var duration: String = "00:00"
-@export var high_score: int = 0
-@export var illustration: Texture
-
+## Fila: miniatura + nombre + duración + high-score.
 signal song_selected(data: Dictionary)
 
-func _ready():
-	# Crear el layout general
-	var hbox = HBoxContainer.new()
-	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+@onready var icon_rect: TextureRect = $HBoxContainer/Icon
+@onready var name_label: Label = $HBoxContainer/VBoxContainer/NameLabel
+@onready var duration_label: Label = $HBoxContainer/VBoxContainer/MetaRow/DurationLabel
+@onready var score_label: Label = $HBoxContainer/VBoxContainer/MetaRow/ScoreLabel
 
-	# ---- Imagen (TextureRect)
-	var texture_rect = TextureRect.new()
-	texture_rect.texture = illustration
-	texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	texture_rect.custom_minimum_size = Vector2(100, 100)
-	texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH
-	hbox.add_child(texture_rect)
+@export var song_name: String = ""
+@export var duration: String = ""
+@export var high_score: int = 0
+@export var thumbnail: Texture2D     # miniatura 64×64 de la fila
+@export var right_preview: Texture2D # imagen grande para el panel derecho
 
-	# ---- Contenedor de texto (VBoxContainer)
-	var vbox = VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 4)
-	hbox.add_child(vbox)
+func _ready() -> void:
+	custom_minimum_size.y = max(custom_minimum_size.y, 84)  # altura mínima visible
+	_refresh()
+	pressed.connect(_on_pressed)
 
-	# ---- Labels
-	var name_label = Label.new()
-	name_label.text = song_name
-	name_label.add_theme_font_size_override("font_size", 20)
-	vbox.add_child(name_label)
+func _refresh() -> void:
+	if name_label:     name_label.text = song_name
+	if duration_label: duration_label.text = "Duración: %s" % duration
+	if score_label:    score_label.text = "High-score: %d" % high_score
+	if icon_rect:      icon_rect.texture = thumbnail
 
-	var duration_label = Label.new()
-	duration_label.text = duration
-	duration_label.add_theme_font_size_override("font_size", 16)
-	vbox.add_child(duration_label)
-
-	var score_label = Label.new()
-	score_label.text = "High Score: %d" % high_score
-	score_label.add_theme_font_size_override("font_size", 16)
-	vbox.add_child(score_label)
-
-	# ---- Añadir el HBox al botón
-	add_child(hbox)
-
-func _pressed():
-	emit_signal("song_selected", {
+func _on_pressed() -> void:
+	song_selected.emit({
 		"name": song_name,
 		"duration": duration,
 		"high_score": high_score,
-		"illustration": illustration
+		"thumbnail": thumbnail,
+		"preview": right_preview
 	})
