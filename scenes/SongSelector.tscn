@@ -21,6 +21,7 @@ script = ExtResource("1_xk5gs")
 
 [node name="Background" type="TextureRect" parent="."]
 z_index = -1
+z_as_relative = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -37,6 +38,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 449.0
+offset_top = 132.0
+offset_right = 223.0
+offset_bottom = -236.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 40
@@ -49,14 +54,14 @@ layout_mode = 2
 theme = SubResource("Theme_xk5gs")
 
 [node name="MetaRow" type="VBoxContainer" parent="HBoxContainer/ScrollContainer"]
-z_index = 3
+z_index = 7
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 16
 alignment = 1
 
 [node name="PreviewRect" type="TextureRect" parent="HBoxContainer"]
-z_index = 1
+z_index = 2
 custom_minimum_size = Vector2(500, 400)
 layout_mode = 2
 size_flags_horizontal = 6

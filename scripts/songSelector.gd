@@ -6,7 +6,6 @@ extends Control
 ## Descubre nodos por TIPO y crea lo que falte.
 ## =========================================================
 
-
 # ---------------------------------------------------------
 # (A) Utilidades: búsqueda recursiva por tipo y creación segura
 # ---------------------------------------------------------
@@ -32,36 +31,18 @@ func _ensure_left_list(hbox: HBoxContainer) -> VBoxContainer:
 		# Layout: que ocupe su columna
 		scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL   # Fill + Expand
 		scroll.size_flags_vertical   = Control.SIZE_EXPAND_FILL   # Fill + Expand
-		scroll.custom_minimum_size   = Vector2(420, 0)            # ancho mínimo para que se vea
-		scroll.size_flags_stretch_ratio = 0.0                     # que no “robe” el ancho de la derecha
+		scroll.custom_minimum_size   = Vector2(800, 400)            # ancho mínimo para que se vea
 
 	var vbox := _find_first_by_type(scroll, "VBoxContainer") as VBoxContainer
-	if vbox == null:
-		vbox = VBoxContainer.new()
-		scroll.add_child(vbox)
-		# Layout: columna que crece verticalmente
-		vbox.size_flags_vertical = Control.SIZE_FILL
-		vbox.set("theme_override_constants/separation", 8)
-
 	return vbox
 
+
 # Crea (si hace falta) un TextureRect de preview a la derecha.
-func _ensure_right_preview(hbox: HBoxContainer) -> TextureRect:
-	# Busca un TextureRect directo (la “columna” derecha)
-	for child in hbox.get_children():
-		if child is TextureRect:
-			return child as TextureRect
+
 
 	# Si no hay, crea uno nuevo
-	var preview := TextureRect.new()
-	hbox.add_child(preview)
+
 	# Layout: que ocupe la segunda columna
-	preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL     # Fill + Expand
-	preview.size_flags_vertical   = Control.SIZE_EXPAND_FILL
-	preview.custom_minimum_size   = Vector2(640, 360)
-	preview.stretch_mode          = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	preview.size_flags_stretch_ratio = 1.0                      # esta columna se queda con el resto
-	return preview
 
 
 # ---------------------------------------------------------
@@ -76,14 +57,14 @@ var entry_scene: PackedScene = preload("res://scenes/SongEntry.tscn")
 # Datos de canciones (archivos EXACTOS que indicaste)
 var songs := [
 	{
-		"name": "Acceleration",
+		"name": "Song 1",
 		"duration": "2:34",
 		"high_score": 50750,
 		"thumb": preload("res://assets/sprites/Song_preview_1.png"),
 		"bg":    preload("res://assets/sprites/song_1.png")
 	},
 	{
-		"name": "After Dark (TV Size)",
+		"name": "Song 2",
 		"duration": "1:30",
 		"high_score": 30500,
 		"thumb": preload("res://assets/sprites/Song_preview_2.png"),
@@ -100,39 +81,18 @@ func _ready() -> void:
 
 	# 2) Conseguir (o crear) el HBoxContainer principal
 	var hbox := _find_first_by_type(self, "HBoxContainer") as HBoxContainer
-	if hbox == null:
-		hbox = HBoxContainer.new()
-		add_child(hbox)
-		hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		hbox.size_flags_vertical   = Control.SIZE_EXPAND_FILL
-		hbox.set("theme_override_constants/separation", 12)
+	
 
 	# 3) Asegurar columna izquierda (Scroll + VBox) y derecha (TextureRect)
 	song_list     = _ensure_left_list(hbox)
-	right_preview = _ensure_right_preview(hbox)
+
 
 	# 4) Ajustar layout AHORA que existen los nodos
-	_layout_guard()
+
 
 	# 5) Poblar la lista (sin seleccionar nada por defecto)
 	_build_list()
 	# (Opcional) dejar el panel derecho vacío al iniciar
-	if right_preview:
-		right_preview.texture = null
-
-
-# Ajustes de layout (anchors / size flags / mínimos)
-func _layout_guard() -> void:
-	# Root a pantalla completa
-	if self is Control:
-		set_anchors_preset(Control.PRESET_FULL_RECT)
-
-	# Reaplicar flags al HBox (por si fue creado en _ready)
-	var hbox := _find_first_by_type(self, "HBoxContainer") as HBoxContainer
-	if hbox:
-		hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		hbox.size_flags_vertical   = Control.SIZE_EXPAND_FILL
-		hbox.set("theme_override_constants/separation", 12)
 
 	# Columna izquierda: asegurar ancho mínimo y que no estire
 	var scroll := _find_first_by_type(hbox, "ScrollContainer") as ScrollContainer
@@ -143,12 +103,6 @@ func _layout_guard() -> void:
 		scroll.size_flags_stretch_ratio = 0.0
 
 	# Columna derecha: quedarse con el resto
-	if right_preview:
-		right_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		right_preview.size_flags_vertical   = Control.SIZE_EXPAND_FILL
-		right_preview.custom_minimum_size   = Vector2(640, 360)
-		right_preview.stretch_mode          = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		right_preview.size_flags_stretch_ratio = 1.0
 
 
 # ---------------------------------------------------------
@@ -189,7 +143,7 @@ func _highlight_row(btn: Button) -> void:
 	if current_selected and is_instance_valid(current_selected):
 		current_selected.modulate = Color.WHITE
 	current_selected = btn
-	current_selected.modulate = Color(0.90, 0.96, 1.0)  # tinte suave de selección
+	current_selected.modulate = Color(1.0, 1.0, 1.0, 1.0)  # tinte suave de selección
 
 func _apply_preview(data: Dictionary) -> void:
 	if right_preview and data.has("preview"):

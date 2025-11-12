@@ -14,7 +14,6 @@ signal song_selected(data: Dictionary)
 @export var right_preview: Texture2D # imagen grande para el panel derecho
 
 func _ready() -> void:
-	custom_minimum_size.y = max(custom_minimum_size.y, 84)  # altura mínima visible
 	_refresh()
 	pressed.connect(_on_pressed)
 
