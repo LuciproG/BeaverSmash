@@ -59,7 +59,7 @@ func _generate_grid():
 # ==========================
 # Control del juego
 # ==========================
-func start_game(music_player: AudioStreamPlayer):
+func start_game(music_player: AudioStreamPlayer2D):
 	tickets = 10
 	mode = "fast"
 	hit_value = 1
