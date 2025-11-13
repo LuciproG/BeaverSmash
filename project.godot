@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="BeaverSmash"
-run/main_scene="uid://bnsue12kjpjox"
+run/main_scene="uid://q3ipeikktlj8"
 config/features=PackedStringArray("4.5", "Forward Plus")
 
 [display]
