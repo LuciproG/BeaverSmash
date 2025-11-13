@@ -14,13 +14,13 @@ hit_texture = ExtResource("2_kln4g")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1
-position = Vector2(1.3759918, -1.4567223)
-scale = Vector2(0.024414904, 0.025600195)
+position = Vector2(0.71376705, -1.4567223)
+scale = Vector2(0.023975316, 0.025600195)
 texture = ExtResource("3_kln4g")
 region_rect = Rect2(16, 0, 128, 200)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0.8223684, 3.5527137e-15)
+position = Vector2(0.6578947, 3.5527137e-15)
 scale = Vector2(0.9999998, 1)
 shape = SubResource("RectangleShape2D_0o2lx")
 
