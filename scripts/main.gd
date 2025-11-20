@@ -23,11 +23,13 @@ var current_song: Dictionary = {}
 # Inicialización
 # ==========================
 func _ready():
+	print("🎮 Iniciando juego...")
+	print("Music node type:", game_music.get_class() if game_music else "null")
 	_find_or_create_nodes()
 	_setup_connections()
 	_show_menu()
 	menu_music.play()
-
+	
 # ==========================
 # Buscar o crear nodos necesarios
 # ==========================
@@ -131,19 +133,35 @@ func _on_play_pressed():
 
 func _on_song_confirmed(song_data: Dictionary):
 	current_song = song_data
+	print("📀 Canción confirmada: ", song_data["name"])
+	print("🎵 game_music válido:", game_music != null)
+	print("🎵 game_music tipo:", game_music.get_class() if game_music else "null")
 	
 	# Cargar música
 	if song_data.has("audio_path") and ResourceLoader.exists(song_data["audio_path"]):
-		game_music.stream = load(song_data["audio_path"])
-		print("✅ Música cargada: ", song_data["name"])
+		var audio_stream = load(song_data["audio_path"])
+		if audio_stream:
+			game_music.stream = audio_stream
+			print("✅ Música cargada: ", song_data["name"])
+		else:
+			print("❌ Error al cargar stream de audio")
+	else:
+		print("⚠️ Ruta de audio no existe: ", song_data.get("audio_path", "ninguna"))
 	
 	_show_game()
 	
 	if ui_manager and ui_manager.has_method("show_countdown"):
 		await ui_manager.show_countdown()
 	
+	print("🎮 Intentando iniciar juego...")
+	print("🎮 game_manager existe:", game_manager != null)
+	print("🎮 game_music existe:", game_music != null)
+	
 	if game_manager and game_manager.has_method("start_game"):
-		game_manager.start_game(game_music)
+		# Pasar el nombre de la canción para buscar el mapa
+		game_manager.start_game(game_music, song_data["name"])
+	else:
+		print("❌ No se pudo iniciar el juego")
 
 func _on_back_to_menu():
 	_show_menu()

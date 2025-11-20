@@ -12,13 +12,17 @@ signal tickets_changed(new_value: int)
 # ==========================
 @onready var game_layer = get_parent().get_node("GameLayer")
 @onready var beat_timer = $BeatTimer
+@onready var beat_player = $BeatPlayer  # Nuevo: reproductor de mapas
 var mole_scene = preload("res://scenes/mole.tscn")
+
+# Modo de juego
+var use_beat_map: bool = true  # Usar mapa o sistema antiguo de BPM
 
 # ==========================
 # Configuración
 # ==========================
 const GRID_SIZE = 3
-const SPACING = 260
+const SPACING = 220  # Ajustado para la imagen
 const FAST_BPM = 148.0
 const SLOW_BPM = 78.0
 const WIN_THRESHOLD = 30
@@ -47,19 +51,28 @@ func _ready():
 func _generate_grid():
 	grid_positions.clear()
 	var screen_size = get_viewport().get_visible_rect().size
+	
+	# Ajustar para tu imagen específica
 	var grid_width = (GRID_SIZE - 1) * SPACING
-	var grid_height = (GRID_SIZE - 1) * SPACING * 0.1
-	var start_x = screen_size.x / 2.0 - grid_width / 2.0
-	var start_y = screen_size.y / 2.0 - grid_height / 2.0 - 45.0
+	var grid_height = (GRID_SIZE - 1) * SPACING * 0.65  # Ajustado verticalmente
+	
+	# Centrar en pantalla con offset para tu imagen
+	var start_x = screen_size.x / 2.0 - grid_width / 2.0 - 20
+	var start_y = screen_size.y / 2.0 - grid_height / 2.0 + 30
 
 	for row in range(GRID_SIZE):
 		for col in range(GRID_SIZE):
-			grid_positions.append(Vector2(start_x + col * SPACING, start_y + row * SPACING))
+			var pos = Vector2(start_x + col * SPACING, start_y + row * SPACING)
+			grid_positions.append(pos)
+	
+	print("✅ Grid generado: ", grid_positions.size(), " posiciones")
+	print("Primera posición: ", grid_positions[0])
+	print("Última posición: ", grid_positions[grid_positions.size() - 1])
 
 # ==========================
 # Control del juego
 # ==========================
-func start_game(music_player: AudioStreamPlayer2D):
+func start_game(music_player: AudioStreamPlayer, song_name: String):
 	tickets = 10
 	mode = "fast"
 	hit_value = 1
